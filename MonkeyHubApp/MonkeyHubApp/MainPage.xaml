@@ -3,9 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:MonkeyHubApp"
              x:Class="MonkeyHubApp.MainPage">
+    <StackLayout>
+        <Entry Text="{Binding SearchTerm}"/>
+        <Button Text="Pesquisar" Command="SearchCommand"></Button>
 
-	<Label Text="{Binding Descricao}" 
-           VerticalOptions="Center" 
-           HorizontalOptions="Center" />
+    </StackLayout>
 
 </ContentPage>
