@@ -1,11 +1,36 @@
 ﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Xamarin.Forms;
+using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Collections.Generic;
 
 namespace MonkeyHubApp.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
+
+        public async Task<List<Tag>> GetTagsAsync()
+        {
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var response = await httpClient.GetAsync($"{BaseUrl}Tags").ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                using (var responseStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+                {
+                    return JsonConvert.DeserializeObject<List<Tag>>(
+                        await new StreamReader(responseStream)
+                            .ReadToEndAsync().ConfigureAwait(false));
+                }
+            }
+
+            return null;
+        }
+
         private string _searchTerm;     
 
         public string SearchTerm
@@ -53,7 +78,6 @@ namespace MonkeyHubApp.ViewModels
         bool CanExecuteSearchCommand()
         {
             return string.IsNullOrWhiteSpace(SearchTerm) == false;
-            Resultados.Add("Não");
         }
 
     }
