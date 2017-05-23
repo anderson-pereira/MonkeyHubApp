@@ -5,13 +5,17 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using MonkeyHubApp.Models;
 
 namespace MonkeyHubApp.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
 
-        public async Task<List<Tag>> GetTagsAsync()
+        private const string BaseUrl = "https://monkey-hub-api.azurewebsites.net/api/";
+
+        public async Task<List<Tag>> GetTagsAsyng()
         {
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -44,14 +48,14 @@ namespace MonkeyHubApp.ViewModels
         }
 
         //Lista que pode ser carregada por demanda.
-        public ObservableCollection<string> Resultados { get; }
+        public ObservableCollection<Tag> Resultados { get; }
 
         //Não precisa ser Binding, pois a instância inicial não mudará.
         public Command SearchCommand { get; } //get only, Só è modificada no construtor.
 
         public MainViewModel()
         {
-            Resultados = new ObservableCollection<string>(new[] {"abc", "cde" });
+            Resultados = new ObservableCollection<Tag>();
 
             SearchCommand = new Command(ExecuteSearchCommand, CanExecuteSearchCommand);
         }
@@ -66,12 +70,22 @@ namespace MonkeyHubApp.ViewModels
             if (resposta)
             {
                 await App.Current.MainPage.DisplayAlert("MonkeyHubApp", "Obrigado.", "Ok");
-                Resultados.Add("Sim");
+
+                var tagsRetornadasDoServico = await GetTagsAsyng();
+
+                Resultados.Clear();
+                if (tagsRetornadasDoServico != null)
+                {
+                    foreach (var tag in tagsRetornadasDoServico)
+                    {
+                        Resultados.Add(tag);
+                    }
+                }
             }
             else
             {
                 await App.Current.MainPage.DisplayAlert("MonkeyHubApp", "Reporte seu erro.", "Ok");
-                Resultados.Add("Não");
+                Resultados.Clear();
             }
         }
 
