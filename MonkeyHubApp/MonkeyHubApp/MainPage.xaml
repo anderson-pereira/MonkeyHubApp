@@ -5,9 +5,7 @@
              x:Class="MonkeyHubApp.MainPage"
              Title="Página Inicial">
     <StackLayout>
-        <Button Text=Navagacao" Clicked="Button_Clicked"/>
-        <Button Text="Navagacao Modal" Clicked="ButtonModal_Clicked"/>
-        <Button Text="Voltar Modal" Clicked="ButtonVoltarModal_Clicked"/>
+        <Button Text="Tela Sobre" Command="{Binding AboutCommand}"/>
         <Entry Text="{Binding SearchTerm}"/>
         <Button Text="Pesquisar" Command="{Binding SearchCommand}"></Button>
         <ListView ItemsSource="{Binding Resultados}">

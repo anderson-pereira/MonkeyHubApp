@@ -53,11 +53,20 @@ namespace MonkeyHubApp.ViewModels
         //Não precisa ser Binding, pois a instância inicial não mudará.
         public Command SearchCommand { get; } //get only, Só è modificada no construtor.
 
+        public Command AboutCommand { get; }
+
         public MainViewModel()
         {
             Resultados = new ObservableCollection<Tag>();
 
             SearchCommand = new Command(ExecuteSearchCommand, CanExecuteSearchCommand);
+
+            AboutCommand = new Command(ExecuteAboutCommand);
+        }
+
+        async void ExecuteAboutCommand()
+        {
+            await PushAsync<AboutViewModel>();
         }
 
         async void ExecuteSearchCommand()
