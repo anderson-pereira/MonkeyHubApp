@@ -1,39 +1,12 @@
 ﻿using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using Xamarin.Forms;
-using System.IO;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Collections.Generic;
-using Newtonsoft.Json;
 using MonkeyHubApp.Models;
+using MonkeyHubApp.Services;
 
 namespace MonkeyHubApp.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
-
-        private const string BaseUrl = "https://monkey-hub-api.azurewebsites.net/api/";
-
-        public async Task<List<Tag>> GetTagsAsyng()
-        {
-            var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            var response = await httpClient.GetAsync($"{BaseUrl}Tags").ConfigureAwait(false);
-
-            if (response.IsSuccessStatusCode)
-            {
-                using (var responseStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
-                {
-                    return JsonConvert.DeserializeObject<List<Tag>>(
-                        await new StreamReader(responseStream)
-                            .ReadToEndAsync().ConfigureAwait(false));
-                }
-            }
-
-            return null;
-        }
 
         private string _searchTerm;     
 
@@ -55,13 +28,26 @@ namespace MonkeyHubApp.ViewModels
 
         public Command AboutCommand { get; }
 
-        public MainViewModel()
+        public Command<Tag> ShowCategoriaCommand { get; }
+
+        private readonly IMonkeyHubAppService _MonkeyHubAppService;
+
+        public MainViewModel(IMonkeyHubAppService MonkeyHubAppService)
         {
+            _MonkeyHubAppService = MonkeyHubAppService;
+
             Resultados = new ObservableCollection<Tag>();
 
             SearchCommand = new Command(ExecuteSearchCommand, CanExecuteSearchCommand);
 
             AboutCommand = new Command(ExecuteAboutCommand);
+
+            ShowCategoriaCommand = new Command<Tag>(ExecuteShowCategoriaCommand);
+        }
+
+        private async void ExecuteShowCategoriaCommand(Tag tag)
+        {
+            await PushAsync<CategoriaViewModel>(_MonkeyHubAppService, tag);
         }
 
         async void ExecuteAboutCommand()
@@ -80,7 +66,7 @@ namespace MonkeyHubApp.ViewModels
             {
                 await App.Current.MainPage.DisplayAlert("MonkeyHubApp", "Obrigado.", "Ok");
 
-                var tagsRetornadasDoServico = await GetTagsAsyng();
+                var tagsRetornadasDoServico = await _MonkeyHubAppService.GetTagsAsync();
 
                 Resultados.Clear();
                 if (tagsRetornadasDoServico != null)

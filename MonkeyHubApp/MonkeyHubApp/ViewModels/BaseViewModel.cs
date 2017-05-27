@@ -64,5 +64,11 @@ namespace MonkeyHubApp.ViewModels
 
             await Application.Current.MainPage.Navigation.PushAsync(page);
         }
+
+        public virtual Task LoadAsync()
+        {
+            return Task.FromResult(0);
+        }
+
     }
 }
